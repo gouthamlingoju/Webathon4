@@ -1,0 +1,69 @@
+import random
+import json
+import statistics
+from datetime import datetime
+
+class Sensor:
+    def __init__(self, sensor_id):
+        self.sensor_id = sensor_id
+        self.readings = []
+
+    def generate_reading(self):
+        value = round(random.uniform(20.0, 100.0), 2)
+        timestamp = datetime.now().isoformat()
+        reading = {"time": timestamp, "value": value}
+        self.readings.append(reading)
+        return reading
+
+    def average(self):
+        values = [r["value"] for r in self.readings]
+        return round(statistics.mean(values), 2) if values else 0
+
+    def maximum(self):
+        values = [r["value"] for r in self.readings]
+        return max(values) if values else None
+
+    def minimum(self):
+        values = [r["value"] for r in self.readings]
+        return min(values) if values else None
+
+
+def simulate_sensors(n_sensors=3, n_readings=10):
+    sensors = [Sensor(f"S{i+1}") for i in range(n_sensors)]
+
+    for _ in range(n_readings):
+        for sensor in sensors:
+            sensor.generate_reading()
+
+    return sensors
+
+
+def export_data(sensors, filename="sensor_data.json"):
+    data = {}
+    for sensor in sensors:
+        data[sensor.sensor_id] = {
+            "readings": sensor.readings,
+            "average": sensor.average(),
+            "max": sensor.maximum(),
+            "min": sensor.minimum(),
+        }
+
+    with open(filename, "w") as f:
+        json.dump(data, f, indent=4)
+
+
+def main():
+    sensors = simulate_sensors(4, 15)
+
+    for sensor in sensors:
+        print(f"Sensor {sensor.sensor_id}")
+        print("  Avg:", sensor.average())
+        print("  Max:", sensor.maximum())
+        print("  Min:", sensor.minimum())
+        print("-" * 30)
+
+    export_data(sensors)
+
+
+if __name__ == "__main__":
+    main()
